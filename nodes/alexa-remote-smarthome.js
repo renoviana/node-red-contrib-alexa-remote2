@@ -1,4 +1,5 @@
 const tools = require('../lib/common.js');
+const i18n = require('../lib/i18n.js');
 const util = require('util');
 const convert = require('../lib/color-convert.js');
 
@@ -13,12 +14,12 @@ module.exports = function (RED) {
 		this.on('input', function (msg) {
 			const send = tools.nodeGetSendCb(this, msg);
 			const error = tools.nodeGetErrorCb(this);
-			if(this.account.state.code !== 'READY') return error('Account not initialised!');
-			this.status({ shape: 'dot', fill: 'grey', text: 'sending' });
+			if(this.account.state.code !== 'READY') return error(i18n.t(this, 'errors.accountNotInitialised'));
+			this.status({ shape: 'dot', fill: 'grey', text: i18n.t(this, 'status.sending') });
 			const alexa = this.account.alexa;
 			const option = this.config.option;
 			let value = this.config.value;
-			const invalid = (what) => error(`invalid input: "${JSON.stringify(what || this.config)}"`);
+			const invalid = (what) => error(i18n.t(this, 'errors.invalidInput', { input: JSON.stringify(what || this.config) }));
 
 			switch(option) {
 				case 'get': {
@@ -27,7 +28,7 @@ module.exports = function (RED) {
 						case 'groups': 		return alexa.getSmarthomeGroupsPromise().then(send).catch(error);
 						case 'entities': 	return alexa.getSmarthomeEntitiesPromise().then(send).catch(error);
 						case 'definitions': return alexa.getSmarthomeBehaviourActionDefinitionsPromise().then(send).catch(error);
-						case 'simplified': 	return alexa.smarthomeSimplifiedByEntityIdExt ? send(alexa.smarthomeSimplifiedByEntityIdExt) : error('Not available?!');
+						case 'simplified': 	return alexa.smarthomeSimplifiedByEntityIdExt ? send(alexa.smarthomeSimplifiedByEntityIdExt) : error(i18n.t(this, 'errors.notAvailable'));
 						default: 			return invalid();
 					}
 				}
@@ -40,7 +41,7 @@ module.exports = function (RED) {
 					const queries = value.length === 0 ? msg.payload : value;
 
 					if(!tools.matches(queries, [{ entity: '' }])) {
-						return error(`query: input must be an array of objects with the string property "entity" and optionally "property"`);
+						return error(i18n.t(this, 'errors.queryInput'));
 					}
 					
 					const entities = queries.map(query => {
@@ -54,7 +55,7 @@ module.exports = function (RED) {
 					const requests = Array.from(new Set(entities)).map(entity => ({entityType: entity.type, entityId: getIdForQuery(entity)}));
 
 					return alexa.querySmarthomeDevicesExt(requests).then(response => {
-						if(tools.matches(response, {message: ''})) return error(`error response: ${response.message}`);
+						if(tools.matches(response, {message: ''})) return error(i18n.t(this, 'errors.errorResponse', { message: response.message }));
 
 						if(!tools.matches(response, { 
 							deviceStates: [{ entity: { entityId: '', entityType: ''}, capabilityStates: ['']}],
@@ -165,7 +166,7 @@ module.exports = function (RED) {
 					});
 
 					if(!tools.matches(inputs, [{ entity: '', action: '' }])) {
-						return error(`action: input must be an array of objects with the string properties "entity" and "action"`);
+						return error(i18n.t(this, 'errors.actionInput'));
 					}
 
 					const entities = inputs.map(input => {
@@ -189,13 +190,13 @@ module.exports = function (RED) {
 						switch(input.action) {
 							case 'setColor': {
 								const name = alexa.findSmarthomeColorNameExt(input.value);
-								if(!name) return error(`could not find closest color name of "${input.value}"`);
+								if(!name) return error(i18n.t(this, 'errors.couldNotFindColor', { value: input.value }));
 								native.parameters['colorName'] = name;
 								break;
 							}
 							case 'setColorTemperature': {
 								const name = alexa.findSmarthomeColorTemperatureNameExt(input.value);
-								if(!name) return error(`could not find closest color name of "${input.value}"`);
+								if(!name) return error(i18n.t(this, 'errors.couldNotFindColor', { value: input.value }));
 								native.parameters['colorTemperatureName'] = name;
 								break;
 							}
@@ -223,7 +224,7 @@ module.exports = function (RED) {
 					requests = requests.filter(o => o);
 
 					return alexa.executeSmarthomeDeviceActionExt(requests).then(response => {
-						if(tools.matches(response, {message: ''})) return error(`error response: ${response.message}`);
+						if(tools.matches(response, {message: ''})) return error(i18n.t(this, 'errors.errorResponse', { message: response.message }));
 
 						if(!tools.matches(response, { 
 							controlResponses: [{ entityId: '' }],
@@ -264,17 +265,17 @@ module.exports = function (RED) {
 				}
 				case 'forget': {
 					if(!tools.matches(value, { what: '' })) {
-						return error(`invalid input: "${JSON.stringify(this.config)}"`);
+						return error(i18n.t(this, 'errors.invalidInput', { input: JSON.stringify(this.config) }));
 					}
 					
 					switch(value.what) {
 						case 'device': {
-							if(!tools.matches(value, { entity: {type: '', value: ''} })) return error(`invalid input: "${JSON.stringify(this.config)}"`);
+							if(!tools.matches(value, { entity: {type: '', value: ''} })) return error(i18n.t(this, 'errors.invalidInput', { input: JSON.stringify(this.config) }));
 							const id = RED.util.evaluateNodeProperty(value.entity.value, value.entity.type, this, msg);
 							return alexa.deleteSmarthomeDeviceExt(id).then(send).catch(error);
 						}		
 						case 'group': {
-							if(!tools.matches(value, { entity: {type: '', value: ''} })) return error(`invalid input: "${JSON.stringify(this.config)}"`);
+							if(!tools.matches(value, { entity: {type: '', value: ''} })) return error(i18n.t(this, 'errors.invalidInput', { input: JSON.stringify(this.config) }));
 							const id = RED.util.evaluateNodeProperty(value.entity.value, value.entity.type, this, msg);
 							return alexa.deleteSmarthomeGroupExt(id).then(send).catch(error);
 						}		
@@ -282,7 +283,7 @@ module.exports = function (RED) {
 							return alexa.deleteAllSmarthomeDevicesExt().then(send).catch(error);
 						}
 						default: {
-							return error(`invalid input: "${JSON.stringify(this.config)}"`);
+							return error(i18n.t(this, 'errors.invalidInput', { input: JSON.stringify(this.config) }));
 						}
 					}
 				}

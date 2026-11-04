@@ -1,4 +1,5 @@
 const tools = require('../lib/common.js');
+const i18n = require('../lib/i18n.js');
 
 module.exports = function (RED) {
 	function AlexaRemoteEventNode(input) {
@@ -8,15 +9,15 @@ module.exports = function (RED) {
 		if(!tools.nodeSetup(this, input, true)) return;
 
 		this.onAlexaEvent = (val) => {
-			this.status({ fill: "green", shape: "dot", text: "event fired!" });
-			setTimeout(() => this.status({ fill: "grey", shape: "dot", text: "listening" }), 2000);
+			this.status({ fill: "green", shape: "dot", text: i18n.t(this, 'status.eventFired') });
+			setTimeout(() => this.status({ fill: "grey", shape: "dot", text: i18n.t(this, 'status.listening') }), 2000);
 			this.send({ payload: val });
 		};
 		this.onStatus = (code) => {
 			if(code !== 'READY') return;
 
-			this.status({ fill: "yellow", shape: "dot", text: "starting listening" });
-			setTimeout(() => this.status({ fill: "grey", shape: "dot", text: "listening" }), 2000);
+			this.status({ fill: "yellow", shape: "dot", text: i18n.t(this, 'status.startListening') });
+			setTimeout(() => this.status({ fill: "grey", shape: "dot", text: i18n.t(this, 'status.listening') }), 2000);
 
 			this.account.alexa.removeListener(this.event, this.onAlexaEvent);
 			this.account.alexa.addListener(this.event, this.onAlexaEvent);
@@ -31,7 +32,7 @@ module.exports = function (RED) {
 			};
 			this.account.emitter.removeListener(this.event, this.onAccountEvent);
 			this.account.emitter.addListener(this.event, this.onAccountEvent);
-			this.status({ fill: 'grey', shape: 'dot', text: 'listening' });
+			this.status({ fill: 'grey', shape: 'dot', text: i18n.t(this, 'status.listening') });
 			this.on('close', function() {
 				this.account.emitter.removeListener(this.event, this.onAccountEvent);
 			});
@@ -39,7 +40,7 @@ module.exports = function (RED) {
 		}
 
 		if(!this.account.useWsMqtt) {
-			return this.status({ fill: "red", shape: "dot", text: "events not supported by account" });
+			return this.status({ fill: "red", shape: "dot", text: i18n.t(this, 'status.eventsNotSupported') });
 		}
 		else {
 			this.account.emitter.removeListener('state', this.onStatus);

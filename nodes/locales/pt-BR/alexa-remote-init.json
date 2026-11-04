@@ -1,0 +1,21 @@
+{
+	"alexa-remote-init": {
+		"paletteLabel": "Iniciar Alexa",
+		"label": {
+			"name": "Nome",
+			"account": "Conta",
+			"option": "Opção"
+		},
+		"placeholder": {
+			"optional": "Opcional"
+		},
+		"option": {
+			"initialise": "Iniciar",
+			"fresh": "Nova autenticação",
+			"refresh": "Renovar cookie",
+			"update": "Atualizar dados",
+			"reset": "Reiniciar",
+			"interval": "Próxima renovação"
+		}
+	}
+}

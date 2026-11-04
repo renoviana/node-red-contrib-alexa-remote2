@@ -1,0 +1,74 @@
+{
+	"status": {
+		"success": "success",
+		"sending": "sending",
+		"successful": "__ok__/__total__ successful",
+		"accountMissing": "Account missing!",
+		"initProxy": "init with proxy",
+		"initCookie": "init with cookie",
+		"initPassword": "init with password",
+		"refreshing": "refreshing",
+		"updating": "updating",
+		"ready": "ready",
+		"uninitialised": "uninitialised",
+		"unknown": "unknown status",
+		"listening": "listening",
+		"startListening": "starting listening",
+		"eventFired": "event fired!",
+		"eventsNotSupported": "push events are off in the account"
+	},
+	"account": {
+		"waitProxy": "open __url__ in your browser",
+		"cookieDeprecated": "the \"Cookie\" auth method is deprecated and usually fails with current Amazon logins, use \"Proxy\"",
+		"refreshTooLong": "refresh interval of __days__ days is too long, using __max__ days",
+		"autoRefresh": "auto refreshing cookie...",
+		"initialising": "initialising __name__with the __method__ method and __saved__",
+		"withSavedData": "saved data...",
+		"withoutSavedData": "NO saved data...",
+		"portInUse": "port __port__ already in use",
+		"aborted": "Initialisation was aborted!",
+		"mustInitRefresh": "account must be initialised before refreshing",
+		"mustInitUpdate": "account must be initialised before updating",
+		"savedTo": "authentication saved to \"__file__\"",
+		"authFailed": "Authentication failed: \"__message__\"",
+		"authUnsuccessful": "Authentication unsuccessful"
+	},
+	"cookieFile": {
+		"usingBackup": "cookie file \"__file__\" unreadable (__errors__), using backup \"__backup__\"",
+		"unreadable": "could not read cookie file: __errors__"
+	},
+	"errors": {
+		"accountNotInitialised": "account not initialised",
+		"invalidInput": "invalid input: \"__input__\"",
+		"invalidOption": "invalid option",
+		"unknownOption": "unknown option: \"__option__\"",
+		"expected": "expected __fields__",
+		"deviceNotFound": "device not found: \"__device__\"",
+		"noResponseDevice": "no response for device: \"__name__\" (__serial__)",
+		"couldNotFindDevice": "could not find device: \"__device__\"",
+		"couldNotFindRoutine": "could not find routine: \"__routine__\"",
+		"couldNotFindEntity": "could not find smarthome entity: \"__entity__\"",
+		"couldNotFindColor": "could not find closest color name of \"__value__\"",
+		"errorResponse": "error response: __message__",
+		"notAvailable": "not available",
+		"queryInput": "query: input must be an array of objects with the string property \"entity\" and optionally \"property\"",
+		"actionInput": "action: input must be an array of objects with the string properties \"entity\" and \"action\""
+	},
+	"ui": {
+		"notDeployed": "Could not load __label__: Account not deployed!",
+		"notInitialised": "Could not load __label__: Account not initialised!",
+		"missingProperty": "Could not load __label__: Account is missing \"__property__\" property!",
+		"labels": {
+			"errors": "Error Messages",
+			"skills": "Skills",
+			"routines": "Routines",
+			"musicProviders": "Music Providers",
+			"devices": "Devices",
+			"smarthome": "Smarthome Devices",
+			"bluetooth": "Bluetooth Devices",
+			"notifications": "Notifications",
+			"lists": "Lists",
+			"sounds": "Sounds"
+		}
+	}
+}

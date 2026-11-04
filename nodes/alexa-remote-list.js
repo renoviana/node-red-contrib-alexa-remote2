@@ -1,4 +1,5 @@
 const tools = require('../lib/common.js');
+const i18n = require('../lib/i18n.js');
 
 module.exports = function (RED) {
 
@@ -11,11 +12,11 @@ module.exports = function (RED) {
 		this.on('input', function (msg) {
 			const send = tools.nodeGetSendCb(this, msg);
 			const error = tools.nodeGetErrorCb(this);
-			if(this.account.state.code !== 'READY') return error('account not initialised');
-			this.status({ shape: 'dot', fill: 'grey', text: 'sending' });
+			if(this.account.state.code !== 'READY') return error(i18n.t(this, 'errors.accountNotInitialised'));
+			this.status({ shape: 'dot', fill: 'grey', text: i18n.t(this, 'status.sending') });
 			const alexa = this.account.alexa;
 			const config = tools.nodeEvaluateProperties(RED, this, msg, this.config);
-			if(!tools.matches(config, { option: '', value: undefined })) return error(`invalid input: "${JSON.stringify(config)}"`);
+			if(!tools.matches(config, { option: '', value: undefined })) return error(i18n.t(this, 'errors.invalidInput', { input: JSON.stringify(config) }));
 			const {option, value} = config;
 			
 			switch(option) {
@@ -23,29 +24,29 @@ module.exports = function (RED) {
 				return alexa.getListsPromise().then(send).catch(error);
 				
         case 'getList':
-					if(!tools.matches(value, { list: '' })) return error(`expected a string 'list'`);
+					if(!tools.matches(value, { list: '' })) return error(i18n.t(this, 'errors.expected', { fields: "a string 'list'" }));
           return alexa.getListPromise(value.list).then(send).catch(error);
 					
 					case 'getListItems':
-						if(!tools.matches(value, { list: '' })) return error(`expected a string 'list'`);
+						if(!tools.matches(value, { list: '' })) return error(i18n.t(this, 'errors.expected', { fields: "a string 'list'" }));
 						return alexa.getListItemsPromise(value.list).then(send).catch(error);
 						
 						case 'addItem': 
-						if(!tools.matches(value, { list: '', text: '' })) return error(`expected a string 'list' and 'text'`);
+						if(!tools.matches(value, { list: '', text: '' })) return error(i18n.t(this, 'errors.expected', { fields: "a string 'list' and 'text'" }));
 						return alexa.addListItemPromise(value.list, value.text).then(send).catch(error);
 						
 				case 'editItem':
-					if(!tools.matches(value, { list: '', item: '', text: '', completed: undefined, version: 0 })) return error(`expected a string 'list', 'item', 'text' and number 'version'`);
+					if(!tools.matches(value, { list: '', item: '', text: '', completed: undefined, version: 0 })) return error(i18n.t(this, 'errors.expected', { fields: "a string 'list', 'item', 'text' and number 'version'" }));
 					let options = { value: value.text, version: value.version };
 					if(typeof value.completed === 'boolean') options.completed = value.completed;
 					return alexa.updateListItemPromise(value.list, value.item, options).then(send).catch(error);
 
 				case 'removeItem':
-					if(!tools.matches(value, { list: '', item: '' })) return error(`expected a string 'list' and 'item'`);
+					if(!tools.matches(value, { list: '', item: '' })) return error(i18n.t(this, 'errors.expected', { fields: "a string 'list' and 'item'" }));
 					return alexa.deleteListItemPromise(value.list, value.item).then(send).catch(error);
 
 				default:
-					return error('invalid option');
+					return error(i18n.t(this, 'errors.invalidOption'));
 			}
 		});
 	}

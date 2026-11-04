@@ -1,0 +1,33 @@
+<script type="text/html" data-help-name="alexa-remote-init">
+	<p>Controle manual da inicialização da conta Alexa.</p>
+	<hr>
+	<h3><strong>Opções</strong></h3>
+	<ul>
+		<li><strong>Iniciar</strong>: inicia a conta. Para controlar a inicialização só por este nó, desligue
+			<em>Iniciar sozinho</em> na conta.</li>
+		<li><strong>Nova autenticação</strong>: ignora o arquivo salvo e pede um novo login pelo proxy.</li>
+		<li><strong>Renovar cookie</strong>: renova a autenticação agora, sem novo login (bom para testar a renovação
+			automática).</li>
+		<li><strong>Atualizar dados</strong>: recarrega dispositivos, rotinas, notificações etc.</li>
+		<li><strong>Reiniciar</strong>: desliga a conta.</li>
+		<li><strong>Próxima renovação</strong>: informa quando será a próxima renovação automática.</li>
+	</ul>
+	<hr>
+	<h3><strong>Entradas</strong></h3>
+	<ul>
+		<li><strong>payload</strong>: com a opção <em>Iniciar</em>, pode ser o resultado de uma autenticação anterior,
+			permitindo iniciar sem o <em>Arquivo</em> (só no modo Proxy)</li>
+	</ul>
+	<hr>
+	<h3><strong>Saídas</strong></h3>
+	<ul>
+		<li><strong>payload</strong>: com a opção <em>Iniciar</em>, é o resultado da autenticação, que pode ser guardado
+			e enviado de volta a um nó Iniciar para inicializar automaticamente (só no modo Proxy)</li>
+	</ul>
+	<hr>
+	<h3><strong>Referências</strong></h3>
+	<ul>
+		<li><a href="https://npmjs.com/package/@renoviana/node-red-contrib-alexa-remote2">npm</a></li>
+		<li><a href="https://github.com/renoviana/node-red-contrib-alexa-remote2">GitHub</a></li>
+	</ul>
+</script>

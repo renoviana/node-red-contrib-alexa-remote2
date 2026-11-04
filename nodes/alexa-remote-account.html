@@ -1,100 +1,103 @@
 <script type="text/x-red" data-template-name="alexa-remote-account">
-    <div class="form-row">
-        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-config-input-name" placeholder="Optional">
+	<div class="form-row">
+		<label for="node-config-input-name"><i class="fa fa-tag"></i> <span data-i18n="alexa-remote-account.label.name">Name</span></label>
+		<input type="text" id="node-config-input-name" data-i18n="[placeholder]alexa-remote-account.placeholder.optional" placeholder="Optional">
 	</div>
 	<div class="form-row" id="alexa-remote-account-status" style="display: none;">
-		<label><i class="fa fa-info-circle"></i> Status</label>
+		<label><i class="fa fa-info-circle"></i> <span data-i18n="alexa-remote-account.label.status">Status</span></label>
 		<span id="alexa-remote-account-status-text" style="width: 70%; display: inline-block;"></span>
 	</div>
 	<hr>
 	<div class="form-row">
-        <label for=""> Auth Method</label>
-        <select id="node-config-input-authMethod" style="width: 70%;">
-            <option value="proxy">Proxy (recommended)</option>
-            <option value="cookie">Cookie (deprecated)</option>
-            <option value="password">Email & Password (deprecated)</option>
+		<label for="node-config-input-authMethod"><span data-i18n="alexa-remote-account.label.authMethod">Auth Method</span></label>
+		<select id="node-config-input-authMethod" style="width: 70%;">
+			<option value="proxy" data-i18n="alexa-remote-account.authMethod.proxy">Proxy (recommended)</option>
+			<option value="cookie" data-i18n="alexa-remote-account.authMethod.cookie">Cookie (deprecated)</option>
+			<option value="password" data-i18n="alexa-remote-account.authMethod.password">Email &amp; Password (deprecated)</option>
 		</select>
-    </div>
+	</div>
 	<div class="form-row" id="alexa-remote-account-deprecated" style="display: none;">
 		<label></label>
-		<span style="width: 70%; display: inline-block; color: #c0392b;">
-			This method usually fails with the current Amazon login. Use <strong>Proxy</strong>.
-		</span>
-	</div>
-    <div class="form-row">
-        <label for="node-config-input-cookie"><i class="fa fa-coffee"></i> Cookie</label>
-        <input type="text" id="node-config-input-cookie" placeholder="Required">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-email"><i class="fa fa-user"></i> Email</label>
-        <input type="text" id="node-config-input-email" placeholder="Required">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-password"><i class="fa fa-key"></i> Password</label>
-        <input type="password" id="node-config-input-password" placeholder="Required">
+		<span style="width: 70%; display: inline-block; color: #c0392b;" data-i18n="[html]alexa-remote-account.hint.deprecated">This method usually fails with the current Amazon login. Use <strong>Proxy</strong>.</span>
 	</div>
 	<div class="form-row">
-        <label for="node-config-input-proxyOwnIp"><i class="fa fa-server"></i> This IP</label>
-        <input type="text" id="node-config-input-proxyOwnIp" placeholder="Required" list="alexa-remote-ip-suggestions">
+		<label for="node-config-input-cookie"><i class="fa fa-coffee"></i> <span data-i18n="alexa-remote-account.label.cookie">Cookie</span></label>
+		<input type="text" id="node-config-input-cookie" data-i18n="[placeholder]alexa-remote-account.placeholder.required" placeholder="Required">
+	</div>
+	<div class="form-row">
+		<label for="node-config-input-email"><i class="fa fa-user"></i> <span data-i18n="alexa-remote-account.label.email">Email</span></label>
+		<input type="text" id="node-config-input-email" data-i18n="[placeholder]alexa-remote-account.placeholder.required" placeholder="Required">
+	</div>
+	<div class="form-row">
+		<label for="node-config-input-password"><i class="fa fa-key"></i> <span data-i18n="alexa-remote-account.label.password">Password</span></label>
+		<input type="password" id="node-config-input-password" data-i18n="[placeholder]alexa-remote-account.placeholder.required" placeholder="Required">
+	</div>
+	<div class="form-row">
+		<label for="node-config-input-proxyOwnIp"><i class="fa fa-server"></i> <span data-i18n="alexa-remote-account.label.proxyOwnIp">This IP</span></label>
+		<input type="text" id="node-config-input-proxyOwnIp" data-i18n="[placeholder]alexa-remote-account.placeholder.required" placeholder="Required" list="alexa-remote-ip-suggestions">
 		<datalist id="alexa-remote-ip-suggestions"></datalist>
 	</div>
 	<div class="form-row" id="alexa-remote-account-ip-hint" style="display: none;">
 		<label></label>
-		<span style="width: 70%; display: inline-block; color: #c0392b;">
-			<em>localhost</em> only works if the browser runs on the Node-RED machine.
-			Use the IP you open Home Assistant / Node-RED with (for example 192.168.0.10).
-		</span>
+		<span style="width: 70%; display: inline-block; color: #c0392b;" data-i18n="[html]alexa-remote-account.hint.localhost"><em>localhost</em> only works if the browser runs on the Node-RED machine. Use the IP you open Home Assistant / Node-RED with (for example 192.168.0.10).</span>
 	</div>
 	<div class="form-row">
-        <label for="node-config-input-proxyPort"><i class="fa fa-ship"></i> Port</label>
-        <input type="text" id="node-config-input-proxyPort" placeholder="Required">
+		<label for="node-config-input-proxyPort"><i class="fa fa-ship"></i> <span data-i18n="alexa-remote-account.label.proxyPort">Port</span></label>
+		<input type="text" id="node-config-input-proxyPort" data-i18n="[placeholder]alexa-remote-account.placeholder.required" placeholder="Required">
 	</div>
 	<div class="form-row">
-        <label for="node-config-input-cookieFile"><i class="fa fa-file"></i> File Path</label>
-        <input type="text" id="node-config-input-cookieFile" placeholder="Optional (default: Node-RED user dir)">
+		<label for="node-config-input-cookieFile"><i class="fa fa-file"></i> <span data-i18n="alexa-remote-account.label.cookieFile">File Path</span></label>
+		<input type="text" id="node-config-input-cookieFile" data-i18n="[placeholder]alexa-remote-account.placeholder.cookieFile" placeholder="Optional (default: Node-RED user dir)">
 	</div>
 	<div class="form-row">
-		<label for="node-config-input-refreshInterval"><i class="fa fa-refresh"></i> Refresh</label>
-		<input type="text" id="node-config-input-refreshInterval" placeholder="Optional" style="width: 55%;">
-		<label for="node-config-input-refreshInterval" style="width: 15%; text-align: center;">days</label>
+		<label for="node-config-input-refreshInterval"><i class="fa fa-refresh"></i> <span data-i18n="alexa-remote-account.label.refreshInterval">Refresh</span></label>
+		<input type="text" id="node-config-input-refreshInterval" data-i18n="[placeholder]alexa-remote-account.placeholder.optional" placeholder="Optional" style="width: 55%;">
+		<label for="node-config-input-refreshInterval" style="width: 15%; text-align: center;" data-i18n="alexa-remote-account.label.days">days</label>
 	</div>
 	<div class="form-row">
 		<label></label>
-		<span style="width: 70%; display: inline-block; opacity: 0.7;">1 to 14 days, empty disables the automatic refresh.</span>
+		<span style="width: 70%; display: inline-block; opacity: 0.7;" data-i18n="alexa-remote-account.hint.refresh">1 to 14 days, empty disables the automatic refresh.</span>
 	</div>
 	<hr>
 	<div class="form-row">
-		<label for="node-config-input-autoInit"><i class="fa fa-wrench"></i> Auto Init</label>
+		<label for="node-config-input-autoInit"><i class="fa fa-wrench"></i> <span data-i18n="alexa-remote-account.label.autoInit">Auto Init</span></label>
 		<select id="node-config-input-autoInit" style="width: 70%;">
-			<option value="on">On</option>
-			<option value="off">Off</option>
+			<option value="on" data-i18n="alexa-remote-account.option.on">On</option>
+			<option value="off" data-i18n="alexa-remote-account.option.off">Off</option>
 		</select>
 	</div>
-    <div class="form-row">
-        <label for="node-config-input-useWsMqtt"><i class="fa fa-rocket"></i> Push Events</label>
+	<div class="form-row">
+		<label for="node-config-input-useWsMqtt"><i class="fa fa-rocket"></i> <span data-i18n="alexa-remote-account.label.useWsMqtt">Push Events</span></label>
 		<select id="node-config-input-useWsMqtt" style="width: 70%;">
-			<option value="on">On</option>
-			<option value="off">Off</option>
+			<option value="on" data-i18n="alexa-remote-account.option.on">On</option>
+			<option value="off" data-i18n="alexa-remote-account.option.off">Off</option>
+		</select>
+	</div>
+	<div class="form-row">
+		<label for="node-config-input-language"><i class="fa fa-comment"></i> <span data-i18n="alexa-remote-account.label.language">Messages</span></label>
+		<select id="node-config-input-language" style="width: 70%;">
+			<option value="auto" data-i18n="alexa-remote-account.language.auto">Automatic (Node-RED language)</option>
+			<option value="en-US">English</option>
+			<option value="pt-BR">Português (Brasil)</option>
 		</select>
 	</div>
 	<hr>
-    <div class="form-row">
-        <label for="node-config-input-alexaServiceHost"><i class="fa fa-amazon"></i> Service Host</label>
-        <input type="text" id="node-config-input-alexaServiceHost" placeholder="Required">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-amazonPage"><i class="fa fa-amazon"></i> Page</label>
-        <input type="text" id="node-config-input-amazonPage" placeholder="Required">
-    </div>
 	<div class="form-row">
-		<label for="node-config-input-acceptLanguage"><i class="fa fa-language"></i> Language</label>
-		<input type="text" id="node-config-input-acceptLanguage" placeholder="Optional">
+		<label for="node-config-input-alexaServiceHost"><i class="fa fa-amazon"></i> <span data-i18n="alexa-remote-account.label.alexaServiceHost">Service Host</span></label>
+		<input type="text" id="node-config-input-alexaServiceHost" data-i18n="[placeholder]alexa-remote-account.placeholder.required" placeholder="Required">
 	</div>
-    <div class="form-row">
-        <label for="node-config-input-userAgent"><i class="fa fa-info-circle"></i> User Agent</label>
-        <input type="text" id="node-config-input-userAgent" placeholder="Optional">
-    </div>
+	<div class="form-row">
+		<label for="node-config-input-amazonPage"><i class="fa fa-amazon"></i> <span data-i18n="alexa-remote-account.label.amazonPage">Page</span></label>
+		<input type="text" id="node-config-input-amazonPage" data-i18n="[placeholder]alexa-remote-account.placeholder.required" placeholder="Required">
+	</div>
+	<div class="form-row">
+		<label for="node-config-input-acceptLanguage"><i class="fa fa-language"></i> <span data-i18n="alexa-remote-account.label.acceptLanguage">Language</span></label>
+		<input type="text" id="node-config-input-acceptLanguage" data-i18n="[placeholder]alexa-remote-account.placeholder.optional" placeholder="Optional">
+	</div>
+	<div class="form-row">
+		<label for="node-config-input-userAgent"><i class="fa fa-info-circle"></i> <span data-i18n="alexa-remote-account.label.userAgent">User Agent</span></label>
+		<input type="text" id="node-config-input-userAgent" data-i18n="[placeholder]alexa-remote-account.placeholder.optional" placeholder="Optional">
+	</div>
 </script>
 
 <script type="text/x-red" data-help-name="alexa-remote-account">
@@ -259,9 +262,10 @@
             acceptLanguage:     { required: false,  value: 'en-US' },
             userAgent:          { required: false, value: '' },
 			useWsMqtt:			{ required: true,  value: 'on' },
-			autoInit:			{ required: true,  value: 'on' }
+			autoInit:			{ required: true,  value: 'on' },
+			language:			{ required: false, value: 'auto' }
 		},
-		paletteLabel: 'Alexa Account',
+		paletteLabel: function () { return this._('alexa-remote-account.paletteLabel'); },
         label: function () {
             return this.name || 'Alexa Account';
         },
@@ -315,14 +319,17 @@
 				if (!state || !state.deployed) return;
 				const text = $('#alexa-remote-account-status-text').empty();
 				if (state.code === 'WAIT_PROXY' && state.loginUrl) {
-					text.append(document.createTextNode('Login required: '))
+					text.append(document.createTextNode(node._('alexa-remote-account.status.loginRequired') + ' '))
 						.append($('<a target="_blank" rel="noopener">').attr('href', state.loginUrl).text(state.loginUrl));
 				}
 				else {
-					text.text(state.message || state.code);
+					// translated state name in the editor language; errors keep the runtime message
+					const key = `alexa-remote-account.state.${state.code}`;
+					const known = node._(key);
+					text.text(state.code === 'ERROR' || known === key ? (state.message || state.code) : known);
 				}
 				if (state.cookieFileIsDefault && state.cookieFile) {
-					text.append($('<div style="opacity: 0.7;">').text(`authentication saved to ${state.cookieFile}`));
+					text.append($('<div style="opacity: 0.7;">').text(node._('alexa-remote-account.status.savedTo', { file: state.cookieFile })));
 				}
 				$('#alexa-remote-account-status').show();
 			};

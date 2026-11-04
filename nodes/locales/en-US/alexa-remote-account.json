@@ -1,0 +1,60 @@
+{
+	"alexa-remote-account": {
+		"paletteLabel": "Alexa Account",
+		"label": {
+			"name": "Name",
+			"status": "Status",
+			"authMethod": "Auth Method",
+			"cookie": "Cookie",
+			"email": "Email",
+			"password": "Password",
+			"proxyOwnIp": "This IP",
+			"proxyPort": "Port",
+			"cookieFile": "File Path",
+			"refreshInterval": "Refresh",
+			"days": "days",
+			"autoInit": "Auto Init",
+			"useWsMqtt": "Push Events",
+			"language": "Messages",
+			"alexaServiceHost": "Service Host",
+			"amazonPage": "Page",
+			"acceptLanguage": "Language",
+			"userAgent": "User Agent"
+		},
+		"placeholder": {
+			"optional": "Optional",
+			"required": "Required",
+			"cookieFile": "Optional (default: Node-RED user dir)"
+		},
+		"authMethod": {
+			"proxy": "Proxy (recommended)",
+			"cookie": "Cookie (deprecated)",
+			"password": "Email & Password (deprecated)"
+		},
+		"option": {
+			"on": "On",
+			"off": "Off"
+		},
+		"language": {
+			"auto": "Automatic (Node-RED language)"
+		},
+		"hint": {
+			"deprecated": "This method usually fails with the current Amazon login. Use <strong>Proxy</strong>.",
+			"localhost": "<em>localhost</em> only works if the browser runs on the Node-RED machine. Use the IP you open Home Assistant / Node-RED with (for example 192.168.0.10).",
+			"refresh": "1 to 14 days, empty disables the automatic refresh."
+		},
+		"status": {
+			"loginRequired": "Login required:",
+			"savedTo": "authentication file: __file__"
+		},
+		"state": {
+			"UNINITIALISED": "uninitialised",
+			"INIT_PROXY": "initialising with proxy",
+			"INIT_COOKIE": "initialising with cookie",
+			"INIT_PASSWORD": "initialising with password",
+			"REFRESH": "refreshing",
+			"UPDATE": "updating",
+			"READY": "ready"
+		}
+	}
+}

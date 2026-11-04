@@ -1,0 +1,68 @@
+<script type="text/html" data-help-name="alexa-remote-account">
+	<p>Configuração da conta Alexa (Amazon).</p>
+	<hr>
+	<h3><strong>Configurações</strong></h3>
+	<ul>
+		<li><strong>Autenticação</strong>
+			<ul>
+				<li><strong>Proxy</strong> (recomendado)
+					<ul>
+						<li>faz o login pelo navegador, através de um proxy, e captura a autenticação automaticamente</li>
+						<li><strong>Este IP</strong> é o IP que o seu navegador usa para chegar ao Node-RED
+							(no Home Assistant: o IP do Home Assistant, não <em>localhost</em>)</li>
+						<li><strong>Arquivo</strong> é onde a autenticação fica salva, para que reinícios e renovações não
+							peçam login de novo. Vazio, ela é salva na pasta do usuário do Node-RED (<code>/config</code> no
+							add-on do Home Assistant). A gravação é atômica e o arquivo anterior fica como <code>.bak</code>.</li>
+						<li><strong>Renovar</strong> é o intervalo de renovação do cookie em dias (1 a 14; vazio desliga)</li>
+						<li>enquanto espera o login, o link aparece clicável no topo desta janela; use o nó
+							<em>Evento Alexa</em> com <em>Login necessário</em> para ser avisado</li>
+					</ul>
+				</li>
+				<li><strong>Cookie</strong> (obsoleto)
+					<ul>
+						<li>o login atual da Amazon exige dados que só o login pelo proxy gera</li>
+					</ul>
+				</li>
+				<li><strong>E-mail e senha</strong> (obsoleto)
+					<ul>
+						<li>não funciona com captcha nem com verificação em duas etapas; use o proxy</li>
+					</ul>
+				</li>
+			</ul>
+		</li>
+		<li><strong>Iniciar sozinho</strong>: <em>ligado</em> inicia a conta sempre que o nó começa ou é alterado</li>
+		<li><strong>Eventos push</strong>: <em>ligado</em> ativa a conexão push da Alexa, necessária para os eventos push do
+			nó <em>Evento Alexa</em> (os eventos de conta, como <em>Login necessário</em>, sempre funcionam)</li>
+		<li><strong>Mensagens</strong>: idioma do status, avisos e erros dos nós desta conta.
+			<em>Automático</em> usa o idioma configurado no Node-RED (<code>lang</code> no settings.js ou a variável
+			<code>LANG</code>); no Home Assistant escolha <em>Português (Brasil)</em> diretamente.</li>
+		<li><strong>Service Host, Página, Idioma</strong>: veja <em>Configuração inicial</em></li>
+	</ul>
+	<hr>
+	<h3><strong>Configuração inicial</strong></h3>
+	<ol>
+		<li>Arraste um nó <strong>Alexa Routine</strong> para o flow.</li>
+		<li>Crie uma conta clicando no lápis ao lado do campo <em>Account</em>.</li>
+		<li>Escolha <strong>Service Host</strong>, <strong>Página</strong> e <strong>Idioma</strong> conforme o país:
+			<table>
+				<thead><tr><th></th><th>Service Host</th><th>Página</th><th>Idioma</th></tr></thead>
+				<tbody>
+					<tr><td>Brasil</td><td>alexa.amazon.com.br</td><td>amazon.com.br</td><td>pt-BR</td></tr>
+					<tr><td>EUA</td><td>pitangui.amazon.com</td><td>amazon.com</td><td>en-US</td></tr>
+					<tr><td>Reino Unido</td><td>alexa.amazon.co.uk</td><td>amazon.co.uk</td><td>en-UK</td></tr>
+					<tr><td>Alemanha</td><td>layla.amazon.de</td><td>amazon.de</td><td>de-DE</td></tr>
+				</tbody>
+			</table>
+		</li>
+		<li>Preencha <strong>Este IP</strong> com o IP do servidor do Node-RED (o que você usa no navegador).</li>
+		<li>Clique em <em>Add</em> e depois em <em>Deploy</em>.</li>
+		<li>Abra o link mostrado no status do nó (ou no topo desta janela) e faça o login completo.</li>
+		<li>Espere o status <strong>pronto</strong>.</li>
+	</ol>
+	<hr>
+	<h3><strong>Referências</strong></h3>
+	<ul>
+		<li><a href="https://npmjs.com/package/@renoviana/node-red-contrib-alexa-remote2">npm</a></li>
+		<li><a href="https://github.com/renoviana/node-red-contrib-alexa-remote2">GitHub</a></li>
+	</ul>
+</script>

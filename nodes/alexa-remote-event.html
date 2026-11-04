@@ -10,29 +10,29 @@
 	<div class="form-row">
 		<label for="node-input-event"><i class="fa fa-sort"></i> Command</label>
 		<select id="node-input-event" style="width: 70%">
-			<optgroup label="Account">
-			<option value="account-login-required"		>Login Required				</option>
-			<option value="account-state"				>Account State Change		</option>
+			<optgroup label="Account" data-label-key="alexa-remote-event.group.account">
+			<option value="account-login-required" data-i18n="alexa-remote-event.event.account-login-required">Login Required</option>
+			<option value="account-state" data-i18n="alexa-remote-event.event.account-state">Account State Change</option>
 			</optgroup>
-			<optgroup label="Push connection">
-			<option value="ws-disconnect"				>Disconnect					</option>
-			<option value="ws-error"					>Error						</option>
-			<option value="ws-connect"					>Connect					</option>
-			<option value="ws-unknown-message"			>Unknown Message			</option>
-			<option value="ws-device-connection-change"	>Device Connection Change	</option>
-			<option value="ws-bluetooth-state-change"	>Bluetooth State Change		</option>
-			<option value="ws-audio-player-state-change">Audioplayer State Change	</option>
-			<option value="ws-media-queue-change"		>Media Queue Change			</option>
-			<option value="ws-media-change"				>Media Change				</option>
-			<option value="ws-media-progress-change"	>Media Progress Change 		</option>
-			<option value="ws-volume-change"			>Volume Change				</option>
-			<option value="ws-content-focus-change"		>Content Focus Change		</option>
-			<option value="ws-equilizer-state-change"	>Equalizer State Change		</option>	
-			<option value="ws-notification-change"		>Notification Change		</option>	
-			<option value="ws-device-activity"			>Device Activity			</option>	
-			<option value="ws-todo-change"				>Todo/List Change			</option>
-			<option value="ws-now-playing-updated"		>Now Playing Updated		</option>
-			<option value="ws-unknown-command"			>Unknown Command			</option>
+			<optgroup label="Push connection" data-label-key="alexa-remote-event.group.push">
+			<option value="ws-disconnect" data-i18n="alexa-remote-event.event.ws-disconnect">Disconnect</option>
+			<option value="ws-error" data-i18n="alexa-remote-event.event.ws-error">Error</option>
+			<option value="ws-connect" data-i18n="alexa-remote-event.event.ws-connect">Connect</option>
+			<option value="ws-unknown-message" data-i18n="alexa-remote-event.event.ws-unknown-message">Unknown Message</option>
+			<option value="ws-device-connection-change" data-i18n="alexa-remote-event.event.ws-device-connection-change">Device Connection Change</option>
+			<option value="ws-bluetooth-state-change" data-i18n="alexa-remote-event.event.ws-bluetooth-state-change">Bluetooth State Change</option>
+			<option value="ws-audio-player-state-change" data-i18n="alexa-remote-event.event.ws-audio-player-state-change">Audioplayer State Change</option>
+			<option value="ws-media-queue-change" data-i18n="alexa-remote-event.event.ws-media-queue-change">Media Queue Change</option>
+			<option value="ws-media-change" data-i18n="alexa-remote-event.event.ws-media-change">Media Change</option>
+			<option value="ws-media-progress-change" data-i18n="alexa-remote-event.event.ws-media-progress-change">Media Progress Change</option>
+			<option value="ws-volume-change" data-i18n="alexa-remote-event.event.ws-volume-change">Volume Change</option>
+			<option value="ws-content-focus-change" data-i18n="alexa-remote-event.event.ws-content-focus-change">Content Focus Change</option>
+			<option value="ws-equilizer-state-change" data-i18n="alexa-remote-event.event.ws-equilizer-state-change">Equalizer State Change</option>	
+			<option value="ws-notification-change" data-i18n="alexa-remote-event.event.ws-notification-change">Notification Change</option>	
+			<option value="ws-device-activity" data-i18n="alexa-remote-event.event.ws-device-activity">Device Activity</option>	
+			<option value="ws-todo-change" data-i18n="alexa-remote-event.event.ws-todo-change">Todo/List Change</option>
+			<option value="ws-now-playing-updated" data-i18n="alexa-remote-event.event.ws-now-playing-updated">Now Playing Updated</option>
+			<option value="ws-unknown-command" data-i18n="alexa-remote-event.event.ws-unknown-command">Unknown Command</option>
 			</optgroup>
 		</select>
 	</div>
@@ -108,6 +108,15 @@
 		},
 		labelStyle: function () {
 			return this.name ? "node_label_italic" : "";
+		},
+		oneditprepare: function () {
+			// Node-RED does not translate <optgroup label>, do it here
+			const node = this;
+			$('#node-input-event optgroup[data-label-key]').each(function () {
+				const key = $(this).attr('data-label-key');
+				const text = node._(key);
+				if (text !== key) this.label = text;
+			});
 		}
 	});
 </script>

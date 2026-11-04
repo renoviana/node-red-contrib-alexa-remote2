@@ -9,6 +9,8 @@
   - added *Todo/List Change* and *Now Playing Updated* push events
   - account dialog shows the current state and a clickable login link, and suggests *This IP*
   - *Cookie* auth method marked as deprecated
+  - Brazilian Portuguese (pt-BR): node status, warnings and errors (account option *Messages*), and the editor
+    dialogs and help of the *Account*, *Event* and *Init* nodes (follow the Node-RED editor language)
   - added tests (`npm test`), fixed dependency vulnerabilities
   - **breaking:** requires Node.js 18+ and Node-RED 2+
 - **3.10.4**

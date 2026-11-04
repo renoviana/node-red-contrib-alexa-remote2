@@ -1,4 +1,5 @@
 const tools = require('../lib/common.js');
+const i18n = require('../lib/i18n.js');
 const util = require('util');
 
 module.exports = function (RED) {
@@ -33,7 +34,7 @@ module.exports = function (RED) {
 						end: end,
 					});
 
-				default: return error('what the heck');
+				default: return error(i18n.t(this, 'errors.unknownOption', { option: this.option }));
 			}
 		});
 	}

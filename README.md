@@ -47,6 +47,10 @@ The goal is to expose all of [alexa-remote2](https://www.npmjs.com/package/alexa
 
 Now trigger the *Alexa Routine* Node with any message and your Alexa will say "Hello World!". (Hopefully!)
 
+### **Language / Idioma**
+- Node status, warnings and errors follow the account option **Messages** (*Automatic*, *English*, *Português (Brasil)*). *Automatic* uses the Node-RED `lang` setting or the `LANG` variable; in the Home Assistant add-on pick the language directly.
+- The *Account*, *Event* and *Init* dialogs and help follow the Node-RED editor language (User settings → View → Language).
+
 ### **Staying logged in**
 - The account refreshes its authentication every *Refresh* days (1-14, default 3) without a new login.
 - A new login is only needed if you change your Amazon password, remove the registered device in your Amazon account, or Amazon revokes it.

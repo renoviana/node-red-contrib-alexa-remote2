@@ -1,0 +1,21 @@
+{
+	"alexa-remote-init": {
+		"paletteLabel": "Alexa Init",
+		"label": {
+			"name": "Name",
+			"account": "Account",
+			"option": "Option"
+		},
+		"placeholder": {
+			"optional": "Optional"
+		},
+		"option": {
+			"initialise": "Initialise",
+			"fresh": "Fresh Authentication",
+			"refresh": "Refresh Cookie",
+			"update": "Update Cached State",
+			"reset": "Reset",
+			"interval": "Interval Info"
+		}
+	}
+}

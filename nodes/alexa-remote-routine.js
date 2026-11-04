@@ -1,4 +1,5 @@
 const tools = require('../lib/common.js');
+const i18n = require('../lib/i18n.js');
 
 module.exports = function (RED) {
 	function AlexaRemoteRoutine(input) {
@@ -13,9 +14,10 @@ module.exports = function (RED) {
 		const error = tools.nodeGetErrorCb(this);
 
 		this.on('input', function (msg) {
+			const tr = (key, vars) => i18n.t(this, key, vars);
 			const send = tools.nodeGetSendCb(this, msg);
-			if (this.account.state.code !== 'READY') return error('Account not initialised!');
-			this.status({ shape: 'dot', fill: 'grey', text: 'sending' });
+			if (this.account.state.code !== 'READY') return error(i18n.t(this, 'errors.accountNotInitialised'));
+			this.status({ shape: 'dot', fill: 'grey', text: i18n.t(this, 'status.sending') });
 			const alexa = this.account.alexa;
 			const raw = this.routineNode;
 			const evaluated = tools.nodeEvaluateProperties(RED, this, msg, this.routineNode);
@@ -45,7 +47,7 @@ module.exports = function (RED) {
 			}
 			const find = (id) => {
 				const device = alexa.find(id);
-				if (!device) throw new Error(`could not find device: "${id}"`);
+				if (!device) throw new Error(tr('errors.couldNotFindDevice', { device: id }));
 				return device;
 			};
 
@@ -506,7 +508,7 @@ module.exports = function (RED) {
 						checkPayload({ entity: '', action: '' });
 
 						const entity = alexa.findSmarthomeEntityExt(node.payload.entity);
-						if (!entity) throw new Error(`could not find smarthome entity: "${node.payload.device}"`);
+						if (!entity) throw new Error(tr('errors.couldNotFindEntity', { entity: node.payload.device }));
 
 						const parameters = { type: node.payload.action };
 						switch (node.payload.action) {
@@ -561,7 +563,7 @@ module.exports = function (RED) {
 
 						const device = find(node.payload.device);
 						const routine = alexa.findRoutineExt(node.payload.routine);
-						if (!routine) throw new Error(`could not find routine: "${node.payload.routine}"`);
+						if (!routine) throw new Error(tr('errors.couldNotFindRoutine', { routine: node.payload.routine }));
 						
 						const routineNode = tools.clone(routine.sequence.startNode);
 	

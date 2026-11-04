@@ -1,0 +1,27 @@
+<script type="text/html" data-help-name="alexa-remote-event">
+	<p>Recebe eventos da conta e da conexão push da Alexa.</p>
+	<ul>
+		<li>Eventos de <strong>Conta</strong> sempre funcionam:
+			<ul>
+				<li><em>Login necessário</em>: dispara quando a conta precisa de um novo login no navegador (por exemplo,
+					quando a autenticação salva expirou). <code>msg.payload.loginUrl</code> é o link a abrir. Ligue numa
+					notificação (Home Assistant, Telegram, e-mail...) para não perder o aviso.</li>
+				<li><em>Mudança de estado da conta</em>: dispara a cada mudança de estado (<code>READY</code>,
+					<code>ERROR</code>, <code>WAIT_PROXY</code>, <code>REFRESH</code>...).</li>
+			</ul>
+		</li>
+		<li>Eventos da <strong>Conexão push</strong> precisam de <em>Eventos push</em> ligado na conta.</li>
+	</ul>
+	<hr>
+	<h3><strong>Saídas</strong></h3>
+	<ul>
+		<li><strong>topic</strong>: o nome do evento (eventos de conta)</li>
+		<li><strong>payload</strong>: os dados do evento; nos eventos de conta <code>{ code, message, time, loginUrl }</code></li>
+	</ul>
+	<hr>
+	<h3><strong>Referências</strong></h3>
+	<ul>
+		<li><a href="https://npmjs.com/package/@renoviana/node-red-contrib-alexa-remote2">npm</a></li>
+		<li><a href="https://github.com/renoviana/node-red-contrib-alexa-remote2">GitHub</a></li>
+	</ul>
+</script>

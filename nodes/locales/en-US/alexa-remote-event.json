@@ -1,0 +1,40 @@
+{
+	"alexa-remote-event": {
+		"paletteLabel": "Alexa Event",
+		"nodeLabel": "On __event__",
+		"label": {
+			"name": "Name",
+			"account": "Account",
+			"event": "Event"
+		},
+		"placeholder": {
+			"optional": "Optional"
+		},
+		"group": {
+			"account": "Account",
+			"push": "Push connection"
+		},
+		"event": {
+			"account-login-required": "Login Required",
+			"account-state": "Account State Change",
+			"ws-disconnect": "Disconnect",
+			"ws-error": "Error",
+			"ws-connect": "Connect",
+			"ws-unknown-message": "Unknown Message",
+			"ws-device-connection-change": "Device Connection Change",
+			"ws-bluetooth-state-change": "Bluetooth State Change",
+			"ws-audio-player-state-change": "Audioplayer State Change",
+			"ws-media-queue-change": "Media Queue Change",
+			"ws-media-change": "Media Change",
+			"ws-media-progress-change": "Media Progress Change",
+			"ws-volume-change": "Volume Change",
+			"ws-content-focus-change": "Content Focus Change",
+			"ws-equilizer-state-change": "Equalizer State Change",
+			"ws-notification-change": "Notification Change",
+			"ws-device-activity": "Device Activity",
+			"ws-todo-change": "Todo/List Change",
+			"ws-now-playing-updated": "Now Playing Updated",
+			"ws-unknown-command": "Unknown Command"
+		}
+	}
+}

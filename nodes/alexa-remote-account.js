@@ -5,6 +5,7 @@ const EventEmitter = require('events');
 const AlexaRemote = require('../lib/alexa-remote-ext.js');
 const tools = require('../lib/common.js');
 const { readCookieFile, writeCookieFile } = require('../lib/cookie-file.js');
+const i18n = require('../lib/i18n.js');
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 // Amazon cookies last ~14 days, and setTimeout overflows (fires immediately) above ~24.8 days
@@ -16,7 +17,7 @@ function parseRefreshInterval(days, warn = () => { }) {
 	let value = Number(days);
 	if (!Number.isFinite(value) || value <= 0) return NaN;
 	if (value > MAX_REFRESH_DAYS) {
-		warn(`refresh interval of ${days} days is too long, using ${MAX_REFRESH_DAYS} days`);
+		warn(days, MAX_REFRESH_DAYS);
 		value = MAX_REFRESH_DAYS;
 	}
 	const ms = value * DAY_MS;
@@ -302,24 +303,26 @@ const uiJsonBuilders = {
 	},
 };
 
-function accountHttpResponse(RED, property, label, req, res) {
+function accountHttpResponse(RED, property, req, res) {
 	const account = RED.nodes.getNode(req.query.account);
+	const lang = account && account.language || i18n.resolveLanguage('auto', RED);
+	const label = i18n.translate(lang, `ui.labels.${property}`);
 	
 	if(!account) {
 		res.writeHeader(400, {'Content-Type': 'text/plain'});
-		return res.end(`Could not load ${label}: Account not deployed!`);
+		return res.end(i18n.translate(lang, 'ui.notDeployed', { label }));
 	}
 	
 	if(account.state.code !== 'READY') {
 		res.writeHeader(400, {'Content-Type': 'text/plain'});
-		return res.end(`Could not load ${label}: Account not initialised!`);
+		return res.end(i18n.translate(lang, 'ui.notInitialised', { label }));
 	}
 	
 	// this won't throw, update failures are reported through ui.errors
 	(req.query.refresh === '1' ? account.builders[property]() : Promise.resolve()).then(() => {
 		if(!account.ui.hasOwnProperty(property)) {
 			res.writeHeader(500, {'Content-Type': 'text/plain'});
-			return res.end(`Could not load ${label}: Account is missing "${property}" property!`);
+			return res.end(i18n.translate(lang, 'ui.missingProperty', { label, property }));
 		}
 
 		res.writeHeader(200, {'Content-Type': 'application/json'});
@@ -336,7 +339,9 @@ module.exports = function (RED) {
 		this.autoInit  = input.autoInit  === 'on';
 		this.name = input.name;
 		this.locale = this.acceptLanguage;
-		this.refreshInterval = parseRefreshInterval(this.refreshInterval, msg => this.warn(msg));
+		this.language = i18n.resolveLanguage(input.language, RED);
+		this.t = (key, vars) => i18n.translate(this.language, key, vars);
+		this.refreshInterval = parseRefreshInterval(this.refreshInterval, (days, max) => this.warn(this.t('account.refreshTooLong', { days, max })));
 
 		// without a file the authentication is lost on every restart, so always persist it
 		this.cookieFileIsDefault = false;
@@ -346,7 +351,7 @@ module.exports = function (RED) {
 		}
 
 		if(this.authMethod === 'cookie') {
-			this.warn('the "Cookie" auth method is deprecated and usually fails with current Amazon logins, use "Proxy"');
+			this.warn(this.t('account.cookieDeprecated'));
 		}
 
 		this.alexa = new AlexaRemote().setMaxListeners(32);
@@ -420,7 +425,7 @@ module.exports = function (RED) {
 
 			this.refreshTimeoutStartTime = Date.now();
 			this.refreshTimeout = setTimeout(() => {
-				this.log('auto refreshing cookie...');
+				this.log(this.t('account.autoRefresh'));
 				this.refreshAlexa().catch(this.errorCb);
 			}, this.refreshInterval);
 		};
@@ -469,7 +474,7 @@ module.exports = function (RED) {
 					config.proxyOnly = true; // should not matter					
 
 					const cookieData = tools.isObject(input) && input.loginCookie && tools.clone(input)
-						 || this.cookieFile && !ignoreFile && readCookieFile(this.cookieFile, msg => this.warn(msg)).data
+						 || this.cookieFile && !ignoreFile && readCookieFile(this.cookieFile, msg => this.warn(msg), this.language).data
 						 || undefined;
 
 					config.cookie = cookieData;
@@ -497,7 +502,11 @@ module.exports = function (RED) {
 				case 'password': this.setState('INIT_PASSWORD'); break;
 			}
 
-			this.logCb(`intialising ${this.name ? `"${this.name}" ` : ''}with the ${initType.toUpperCase()} method and ${config.cookie ? '' : 'NO '}saved data...`);
+			this.logCb(this.t('account.initialising', {
+				name: this.name ? `"${this.name}" ` : '',
+				method: initType.toUpperCase(),
+				saved: this.t(config.cookie ? 'account.withSavedData' : 'account.withoutSavedData'),
+			}));
 
 			this.debugCb(`Alexa-Remote: starting initialisation:`);
 			this.debugCb(`Alexa-Remote: ${JSON.stringify({authMethod: this.authMethod, initType: initType, cookie: config.cookie})}`);
@@ -506,10 +515,11 @@ module.exports = function (RED) {
 			// this.resetAlexa() or this.initAlexa() might have been called again during this time
 			// so we need to check if this.alexa has changed and if so handle it differently
 			const alexa = this.alexa;
+			alexa.language = this.language;
 
 			const proxyWaitCallback = (url) => {
 				if(alexa !== this.alexa) return;
-				const text = `open ${url} in your browser`;
+				const text = this.t('account.waitProxy', { url });
 				this.warn(text);
 				this.setState('WAIT_PROXY', text, { loginUrl: url });
 			};
@@ -517,7 +527,7 @@ module.exports = function (RED) {
 			// the proxy is only started when there is no saved cookie to reuse
 			if(initType === 'proxy' && !config.cookie) {
 				await tools.portAvailable(config.proxyPort, 10, 300).catch(error => {
-					if(error.code === 'EADDRINUSE') error.message = `port ${config.proxyPort} already in use`;
+					if(error.code === 'EADDRINUSE') error.message = this.t('account.portInUse', { port: config.proxyPort });
 					this.setState('ERROR', error.message);
 					throw error;
 				});
@@ -531,13 +541,13 @@ module.exports = function (RED) {
 
 			// see above why
 			if(alexa !== this.alexa) {
-				throw new Error('Initialisation was aborted!');
+				throw new Error(this.t('account.aborted'));
 			}
 
 			if(this.authMethod === 'proxy' && this.cookieFile) {
 				try {
 					writeCookieFile(this.cookieFile, alexa.cookieData);
-					if(this.cookieFileIsDefault) this.debugCb(`Alexa-Remote: authentication saved to "${this.cookieFile}"`);
+					if(this.cookieFileIsDefault) this.log(this.t('account.savedTo', { file: this.cookieFile }));
 				}
 				catch (error) { this.warnCb(error); }
 			}
@@ -550,7 +560,7 @@ module.exports = function (RED) {
 
 			// see above why
 			if(alexa !== this.alexa) {
-				throw new Error('Initialisation was aborted!');
+				throw new Error(this.t('account.aborted'));
 			}
 
 			this.setState('READY');
@@ -558,7 +568,7 @@ module.exports = function (RED) {
 			return cookieData;
 		};
 		this.refreshAlexa = async function() {
-			if(this.state.code !== 'READY') throw new Error('account must be initialised before refreshing');
+			if(this.state.code !== 'READY') throw new Error(this.t('account.mustInitRefresh'));
 			this.setState('REFRESH');
 
 			// reuse the cookie we already have in memory (falls back to the cookie file),
@@ -578,7 +588,7 @@ module.exports = function (RED) {
 			});
 		};
 		this.updateAlexa = async function() {
-			if(this.state.code !== 'READY') throw new Error('account must be initialised before updating');
+			if(this.state.code !== 'READY') throw new Error(this.t('account.mustInitUpdate'));
 			this.setState('UPDATE');
 
 			return this.alexa.updateExt().then(async value => {
@@ -608,15 +618,15 @@ module.exports = function (RED) {
 		}
 	});
 
-	RED.httpAdmin.get('/alexa-remote-error-messages.json', RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'errors', 'Error Messages', req, res));
-	RED.httpAdmin.get('/alexa-remote-skills.json',         RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'skills', 'Skills', req, res));
-	RED.httpAdmin.get('/alexa-remote-routines.json',       RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'routines', 'Routines', req, res));
-	RED.httpAdmin.get('/alexa-remote-musicProviders.json', RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'musicProviders', 'Music Providers', req, res));
-	RED.httpAdmin.get('/alexa-remote-devices.json',        RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'devices', 'Devices', req, res));
-	RED.httpAdmin.get('/alexa-remote-smarthome.json',      RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'smarthome', 'Smarthome Devices', req, res));
-	RED.httpAdmin.get('/alexa-remote-bluetooth.json',      RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'bluetooth', 'Bluetooth Devices', req, res));
-	RED.httpAdmin.get('/alexa-remote-notifications.json',  RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'notifications', 'Notifications', req, res));
-	RED.httpAdmin.get('/alexa-remote-lists.json',          RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'lists', 'Lists', req, res));
+	RED.httpAdmin.get('/alexa-remote-error-messages.json', RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'errors', req, res));
+	RED.httpAdmin.get('/alexa-remote-skills.json',         RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'skills', req, res));
+	RED.httpAdmin.get('/alexa-remote-routines.json',       RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'routines', req, res));
+	RED.httpAdmin.get('/alexa-remote-musicProviders.json', RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'musicProviders', req, res));
+	RED.httpAdmin.get('/alexa-remote-devices.json',        RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'devices', req, res));
+	RED.httpAdmin.get('/alexa-remote-smarthome.json',      RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'smarthome', req, res));
+	RED.httpAdmin.get('/alexa-remote-bluetooth.json',      RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'bluetooth', req, res));
+	RED.httpAdmin.get('/alexa-remote-notifications.json',  RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'notifications', req, res));
+	RED.httpAdmin.get('/alexa-remote-lists.json',          RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'lists', req, res));
 
 	// account state for the config dialog (shows the login link while waiting for the proxy login)
 	RED.httpAdmin.get('/alexa-remote-account-state.json', RED.auth.needsPermission('alexa-remote.read'), (req, res) => {
@@ -643,16 +653,17 @@ module.exports = function (RED) {
 	RED.httpAdmin.get('/alexa-remote-sounds.json', RED.auth.needsPermission('alexa-remote.read'), (req, res) => {
 		const account = RED.nodes.getNode(req.query.account);
 		const device = req.query.device;
-		const label = 'Sounds';
+		const lang = account && account.language || i18n.resolveLanguage('auto', RED);
+		const label = i18n.translate(lang, 'ui.labels.sounds');
 
 		if (!account) {
 			res.writeHeader(400, { 'Content-Type': 'text/plain' });
-			return res.end(`Could not load ${label}: Account not deployed!`);
+			return res.end(i18n.translate(lang, 'ui.notDeployed', { label }));
 		}
 
 		if (account.state.code !== 'READY') {
 			res.writeHeader(400, { 'Content-Type': 'text/plain' });
-			return res.end(`Could not load ${label}: Account not initialised!`);
+			return res.end(i18n.translate(lang, 'ui.notInitialised', { label }));
 		}
 
 		account.alexa.getSoundsExt(device).then(sounds => {

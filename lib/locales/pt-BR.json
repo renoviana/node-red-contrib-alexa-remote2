@@ -1,0 +1,74 @@
+{
+	"status": {
+		"success": "sucesso",
+		"sending": "enviando",
+		"successful": "__ok__/__total__ com sucesso",
+		"accountMissing": "Conta não configurada!",
+		"initProxy": "iniciando com proxy",
+		"initCookie": "iniciando com cookie",
+		"initPassword": "iniciando com senha",
+		"refreshing": "renovando",
+		"updating": "atualizando",
+		"ready": "pronto",
+		"uninitialised": "não iniciado",
+		"unknown": "status desconhecido",
+		"listening": "aguardando eventos",
+		"startListening": "começando a escutar",
+		"eventFired": "evento recebido!",
+		"eventsNotSupported": "eventos push desligados na conta"
+	},
+	"account": {
+		"waitProxy": "abra __url__ no navegador",
+		"cookieDeprecated": "o método de autenticação \"Cookie\" está obsoleto e normalmente falha com o login atual da Amazon, use \"Proxy\"",
+		"refreshTooLong": "intervalo de renovação de __days__ dias é longo demais, usando __max__ dias",
+		"autoRefresh": "renovando o cookie automaticamente...",
+		"initialising": "iniciando __name__com o método __method__ e __saved__",
+		"withSavedData": "dados salvos...",
+		"withoutSavedData": "SEM dados salvos...",
+		"portInUse": "a porta __port__ já está em uso",
+		"aborted": "A inicialização foi interrompida!",
+		"mustInitRefresh": "a conta precisa estar iniciada antes de renovar",
+		"mustInitUpdate": "a conta precisa estar iniciada antes de atualizar",
+		"savedTo": "autenticação salva em \"__file__\"",
+		"authFailed": "Falha na autenticação: \"__message__\"",
+		"authUnsuccessful": "Autenticação sem sucesso"
+	},
+	"cookieFile": {
+		"usingBackup": "arquivo de cookie \"__file__\" ilegível (__errors__), usando o backup \"__backup__\"",
+		"unreadable": "não foi possível ler o arquivo de cookie: __errors__"
+	},
+	"errors": {
+		"accountNotInitialised": "conta não iniciada",
+		"invalidInput": "entrada inválida: \"__input__\"",
+		"invalidOption": "opção inválida",
+		"unknownOption": "opção desconhecida: \"__option__\"",
+		"expected": "esperado __fields__",
+		"deviceNotFound": "dispositivo não encontrado: \"__device__\"",
+		"noResponseDevice": "sem resposta do dispositivo: \"__name__\" (__serial__)",
+		"couldNotFindDevice": "dispositivo não encontrado: \"__device__\"",
+		"couldNotFindRoutine": "rotina não encontrada: \"__routine__\"",
+		"couldNotFindEntity": "dispositivo de casa inteligente não encontrado: \"__entity__\"",
+		"couldNotFindColor": "nenhuma cor próxima encontrada para \"__value__\"",
+		"errorResponse": "resposta de erro: __message__",
+		"notAvailable": "não disponível",
+		"queryInput": "query: a entrada deve ser uma lista de objetos com a propriedade de texto \"entity\" e, opcionalmente, \"property\"",
+		"actionInput": "action: a entrada deve ser uma lista de objetos com as propriedades de texto \"entity\" e \"action\""
+	},
+	"ui": {
+		"notDeployed": "Não foi possível carregar __label__: conta ainda não implantada (faça o Deploy)!",
+		"notInitialised": "Não foi possível carregar __label__: conta não iniciada!",
+		"missingProperty": "Não foi possível carregar __label__: falta a propriedade \"__property__\" na conta!",
+		"labels": {
+			"errors": "Mensagens de erro",
+			"skills": "Skills",
+			"routines": "Rotinas",
+			"musicProviders": "Serviços de música",
+			"devices": "Dispositivos",
+			"smarthome": "Dispositivos de casa inteligente",
+			"bluetooth": "Dispositivos Bluetooth",
+			"notifications": "Notificações",
+			"lists": "Listas",
+			"sounds": "Sons"
+		}
+	}
+}
