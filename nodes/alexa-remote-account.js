@@ -1,10 +1,39 @@
-const util = require('util');
-const fs = require('fs');
-const readFileAsync = util.promisify(fs.readFile);
+const os = require('os');
+const path = require('path');
 const EventEmitter = require('events');
 
 const AlexaRemote = require('../lib/alexa-remote-ext.js');
 const tools = require('../lib/common.js');
+const { readCookieFile, writeCookieFile } = require('../lib/cookie-file.js');
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+// Amazon cookies last ~14 days, and setTimeout overflows (fires immediately) above ~24.8 days
+const MAX_REFRESH_DAYS = 14;
+
+// returns the refresh interval in ms, or NaN when auto refresh is disabled
+function parseRefreshInterval(days, warn = () => { }) {
+	if (days === undefined || days === null || String(days).trim() === '') return NaN;
+	let value = Number(days);
+	if (!Number.isFinite(value) || value <= 0) return NaN;
+	if (value > MAX_REFRESH_DAYS) {
+		warn(`refresh interval of ${days} days is too long, using ${MAX_REFRESH_DAYS} days`);
+		value = MAX_REFRESH_DAYS;
+	}
+	const ms = value * DAY_MS;
+	return ms < 15000 ? NaN : ms;
+}
+
+function defaultCookieFile(RED, id) {
+	const dir = (RED.settings && RED.settings.userDir) || process.cwd();
+	return path.join(dir, `alexa-remote-cookie-${String(id).replace(/[^a-z0-9_-]/gi, '')}.json`);
+}
+
+function localIpv4Addresses() {
+	return Object.values(os.networkInterfaces())
+		.reduce((all, list) => all.concat(list || []), [])
+		.filter(a => (a.family === 'IPv4' || a.family === 4) && !a.internal)
+		.map(a => a.address);
+}
 
 // we are building all sorts of json payloads to send to the webpage when
 // initializing the account (can be updated via an 'update' query or account.updateAlexa)
@@ -307,8 +336,18 @@ module.exports = function (RED) {
 		this.autoInit  = input.autoInit  === 'on';
 		this.name = input.name;
 		this.locale = this.acceptLanguage;
-		this.refreshInterval = Number(this.refreshInterval) * 1000 * 60 * 60 * 24;
-		if(this.refreshInterval < 15000) this.refreshInterval = NaN;
+		this.refreshInterval = parseRefreshInterval(this.refreshInterval, msg => this.warn(msg));
+
+		// without a file the authentication is lost on every restart, so always persist it
+		this.cookieFileIsDefault = false;
+		if(this.authMethod === 'proxy' && !(this.cookieFile && String(this.cookieFile).trim())) {
+			this.cookieFile = defaultCookieFile(RED, this.id);
+			this.cookieFileIsDefault = true;
+		}
+
+		if(this.authMethod === 'cookie') {
+			this.warn('the "Cookie" auth method is deprecated and usually fails with current Amazon logins, use "Proxy"');
+		}
 
 		this.alexa = new AlexaRemote().setMaxListeners(32);
 		this.emitter = new EventEmitter().setMaxListeners(128);
@@ -358,12 +397,17 @@ module.exports = function (RED) {
 			});
 		});
 
-		this.setState = function(code, message) {
-			this.state = {
+		this.setState = function(code, message, extra = {}) {
+			this.state = Object.assign({
 				code: code,
-				message: message || code
-			};
+				message: message || code,
+				time: Date.now()
+			}, extra);
 			this.emitter.emit('state', code, message);
+			this.emitter.emit('account-state', Object.assign({}, this.state));
+			if(code === 'WAIT_PROXY') {
+				this.emitter.emit('account-login-required', Object.assign({}, this.state));
+			}
 		};
 		this.renewTimeout = function() {
 			if(this.refreshTimeout !== null) {
@@ -410,7 +454,9 @@ module.exports = function (RED) {
 			// this.initing = true;
 
 			let config = {};
-			tools.assign(config, ['proxyOwnIp', 'proxyPort', 'alexaServiceHost', 'amazonPage', 'acceptLanguage', 'userAgent', 'useWsMqtt'], this);	
+			tools.assign(config, ['proxyOwnIp', 'proxyPort', 'alexaServiceHost', 'amazonPage', 'acceptLanguage', 'userAgent', 'useWsMqtt'], this);
+			// alexa-remote2 >= 7 calls the event connection "push connection"
+			config.usePushConnection = this.useWsMqtt;
 			config.logger = this.debugCb;
 			config.refreshCookieInterval = 0;
 			config.proxyLogLevel = 'warn';
@@ -423,7 +469,7 @@ module.exports = function (RED) {
 					config.proxyOnly = true; // should not matter					
 
 					const cookieData = tools.isObject(input) && input.loginCookie && tools.clone(input)
-						 || this.cookieFile && !ignoreFile && await readFileAsync(this.cookieFile, 'utf8').then(json => JSON.parse(json)).catch(this.warnCb)
+						 || this.cookieFile && !ignoreFile && readCookieFile(this.cookieFile, msg => this.warn(msg)).data
 						 || undefined;
 
 					config.cookie = cookieData;
@@ -465,7 +511,7 @@ module.exports = function (RED) {
 				if(alexa !== this.alexa) return;
 				const text = `open ${url} in your browser`;
 				this.warn(text);
-				this.setState('WAIT_PROXY', text);
+				this.setState('WAIT_PROXY', text, { loginUrl: url });
 			};
 
 			// the proxy is only started when there is no saved cookie to reuse
@@ -489,9 +535,10 @@ module.exports = function (RED) {
 			}
 
 			if(this.authMethod === 'proxy' && this.cookieFile) {
-				const data = alexa.cookieData;
-				const json = JSON.stringify(data);
-				try { fs.writeFileSync(this.cookieFile, json, 'utf8'); }
+				try {
+					writeCookieFile(this.cookieFile, alexa.cookieData);
+					if(this.cookieFileIsDefault) this.debugCb(`Alexa-Remote: authentication saved to "${this.cookieFile}"`);
+				}
 				catch (error) { this.warnCb(error); }
 			}
 			
@@ -571,6 +618,27 @@ module.exports = function (RED) {
 	RED.httpAdmin.get('/alexa-remote-notifications.json',  RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'notifications', 'Notifications', req, res));
 	RED.httpAdmin.get('/alexa-remote-lists.json',          RED.auth.needsPermission('alexa-remote.read'), (req, res) => accountHttpResponse(RED, 'lists', 'Lists', req, res));
 
+	// account state for the config dialog (shows the login link while waiting for the proxy login)
+	RED.httpAdmin.get('/alexa-remote-account-state.json', RED.auth.needsPermission('alexa-remote.read'), (req, res) => {
+		const account = RED.nodes.getNode(req.query.account);
+		res.writeHeader(200, { 'Content-Type': 'application/json' });
+		if (!account || !account.state) return res.end(JSON.stringify({ deployed: false }));
+		res.end(JSON.stringify({
+			deployed: true,
+			code: account.state.code,
+			message: account.state.message,
+			loginUrl: account.state.code === 'WAIT_PROXY' ? account.state.loginUrl : undefined,
+			cookieFile: account.cookieFile,
+			cookieFileIsDefault: account.cookieFileIsDefault,
+		}));
+	});
+
+	// suggestions for "This IP" in the config dialog
+	RED.httpAdmin.get('/alexa-remote-local-ips.json', RED.auth.needsPermission('alexa-remote.read'), (req, res) => {
+		res.writeHeader(200, { 'Content-Type': 'application/json' });
+		res.end(JSON.stringify(localIpv4Addresses()));
+	});
+
 	// we request sounds on demand because they are per device
 	RED.httpAdmin.get('/alexa-remote-sounds.json', RED.auth.needsPermission('alexa-remote.read'), (req, res) => {
 		const account = RED.nodes.getNode(req.query.account);
@@ -597,3 +665,5 @@ module.exports = function (RED) {
 		});
 	});
 };
+module.exports.parseRefreshInterval = parseRefreshInterval;
+module.exports.defaultCookieFile = defaultCookieFile;

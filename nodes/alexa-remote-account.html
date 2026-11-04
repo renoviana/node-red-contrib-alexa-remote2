@@ -3,15 +3,25 @@
         <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-config-input-name" placeholder="Optional">
 	</div>
+	<div class="form-row" id="alexa-remote-account-status" style="display: none;">
+		<label><i class="fa fa-info-circle"></i> Status</label>
+		<span id="alexa-remote-account-status-text" style="width: 70%; display: inline-block;"></span>
+	</div>
 	<hr>
 	<div class="form-row">
         <label for=""> Auth Method</label>
         <select id="node-config-input-authMethod" style="width: 70%;">
-            <option value="proxy">Proxy</option>
-            <option value="cookie">Cookie</option>
+            <option value="proxy">Proxy (recommended)</option>
+            <option value="cookie">Cookie (deprecated)</option>
             <option value="password">Email & Password (deprecated)</option>
 		</select>
     </div>
+	<div class="form-row" id="alexa-remote-account-deprecated" style="display: none;">
+		<label></label>
+		<span style="width: 70%; display: inline-block; color: #c0392b;">
+			This method usually fails with the current Amazon login. Use <strong>Proxy</strong>.
+		</span>
+	</div>
     <div class="form-row">
         <label for="node-config-input-cookie"><i class="fa fa-coffee"></i> Cookie</label>
         <input type="text" id="node-config-input-cookie" placeholder="Required">
@@ -26,7 +36,15 @@
 	</div>
 	<div class="form-row">
         <label for="node-config-input-proxyOwnIp"><i class="fa fa-server"></i> This IP</label>
-        <input type="text" id="node-config-input-proxyOwnIp" placeholder="Required">
+        <input type="text" id="node-config-input-proxyOwnIp" placeholder="Required" list="alexa-remote-ip-suggestions">
+		<datalist id="alexa-remote-ip-suggestions"></datalist>
+	</div>
+	<div class="form-row" id="alexa-remote-account-ip-hint" style="display: none;">
+		<label></label>
+		<span style="width: 70%; display: inline-block; color: #c0392b;">
+			<em>localhost</em> only works if the browser runs on the Node-RED machine.
+			Use the IP you open Home Assistant / Node-RED with (for example 192.168.0.10).
+		</span>
 	</div>
 	<div class="form-row">
         <label for="node-config-input-proxyPort"><i class="fa fa-ship"></i> Port</label>
@@ -34,12 +52,16 @@
 	</div>
 	<div class="form-row">
         <label for="node-config-input-cookieFile"><i class="fa fa-file"></i> File Path</label>
-        <input type="text" id="node-config-input-cookieFile" placeholder="Optional">
+        <input type="text" id="node-config-input-cookieFile" placeholder="Optional (default: Node-RED user dir)">
 	</div>
 	<div class="form-row">
 		<label for="node-config-input-refreshInterval"><i class="fa fa-refresh"></i> Refresh</label>
 		<input type="text" id="node-config-input-refreshInterval" placeholder="Optional" style="width: 55%;">
 		<label for="node-config-input-refreshInterval" style="width: 15%; text-align: center;">days</label>
+	</div>
+	<div class="form-row">
+		<label></label>
+		<span style="width: 70%; display: inline-block; opacity: 0.7;">1 to 14 days, empty disables the automatic refresh.</span>
 	</div>
 	<hr>
 	<div class="form-row">
@@ -50,7 +72,7 @@
 		</select>
 	</div>
     <div class="form-row">
-        <label for="node-config-input-useWsMqtt"><i class="fa fa-rocket"></i> Events</label>
+        <label for="node-config-input-useWsMqtt"><i class="fa fa-rocket"></i> Push Events</label>
 		<select id="node-config-input-useWsMqtt" style="width: 70%;">
 			<option value="on">On</option>
 			<option value="off">Off</option>
@@ -93,15 +115,20 @@
 				<li><strong>Proxy</strong>
 					<ul>
 						<li>automatically captures your cookies using a proxy</li>
-						<li><strong>This Ip</strong> has to be the ip of the Node-RED server</li>
-						<li>enter a <strong>File Path</strong> to a text file (can be relative or absolute) to save the
-							authentication result to make following authentications automatic (for alternative ways to save
-							the authentication result see the <em>Alexa Init</em> node)</li>
-						<li><strong>Refresh</strong> is the cookie refresh interval in days</li>
+						<li><strong>This Ip</strong> has to be the ip your browser uses to reach the Node-RED server
+							(in Home Assistant: the Home Assistant ip, not <em>localhost</em>)</li>
+						<li><strong>File Path</strong> is where the authentication result is saved, so restarts and refreshes
+							do not need a new login. When empty, it is saved in the Node-RED user directory
+							(<code>/config</code> in the Home Assistant add-on). The file is written atomically and the
+							previous one is kept as <code>.bak</code>.</li>
+						<li><strong>Refresh</strong> is the cookie refresh interval in days (1 to 14, empty disables it)</li>
+						<li>while waiting for the login, the link to open is shown at the top of this dialog; use the
+							<em>Alexa Event</em> node with <em>Login Required</em> to get notified</li>
 					</ul>
 				</li>
 				<li><strong>Cookie</strong>
 					<ul>
+						<li>deprecated: current Amazon logins need data only the proxy login provides</li>
 						<li>login with manually entering your cookie</li>
 						<li><a href="get_cookie.md">How do i get my cookie?</a></li>
 					</ul>
@@ -120,9 +147,10 @@
 				<li><em>on</em> to initialise the account everytime the node starts or has changed</li>
 			</ul>
 		</li>
-		<li><strong>Events</strong>
+		<li><strong>Push Events</strong>
 			<ul>
-				<li><em>on</em> to enable events sent over WebSocket, required for Event node</li>
+				<li><em>on</em> to enable the Alexa push connection, required for the push events of the Event node
+					(account events like <em>Login Required</em> always work)</li>
 			</ul>
 		</li>
 		<li><strong>Service Host, Page, Language</strong>
@@ -205,8 +233,8 @@
 	<hr>
 	<h3><strong>References</strong></h3>
 	<ul>
-		<li><a href="https://npmjs.com/package/node-red-contrib-alexa-remote2">npm</a> - the nodes npm repository</li>
-		<li><a href="https://github.com/586837r/node-red-contrib-alexa-remote2">GitHub</a> - the nodes GitHub repository
+		<li><a href="https://npmjs.com/package/@renoviana/node-red-contrib-alexa-remote2">npm</a> - the nodes npm repository</li>
+		<li><a href="https://github.com/renoviana/node-red-contrib-alexa-remote2">GitHub</a> - the nodes GitHub repository
 		</li>
 	</ul>
 </script>
@@ -225,7 +253,7 @@
 			proxyOwnIp:			{ required: true,  value: 'localhost' },
 			proxyPort:			{ required: true,  value: 3456, validate: x => 0 <= Number(x) && Number(x) <= 65535 },
 			cookieFile:			{ required: false, value: ''},
-			refreshInterval:	{ required: false, value: '3'},
+			refreshInterval:	{ required: false, value: '3', validate: x => String(x).trim() === '' || (Number(x) > 0 && Number(x) <= 14) },
             alexaServiceHost:   { required: true,  value: 'pitangui.amazon.com' },
 			amazonPage:         { required: true,  value: 'amazon.com' },
             acceptLanguage:     { required: false,  value: 'en-US' },
@@ -241,25 +269,75 @@
             return this.name ? 'node_label_italic' : '';
 		}, 
 		oneditprepare: function () {
-			console.log('loaded', this);
-
+			const node = this;
 			const getInput = x => $(`#node-config-input-${x}`);
 			const getRow = x => getInput(x).parent();
-			
+			const isLocal = host => !host || host === 'localhost' || host === '127.0.0.1' || host === '::1';
+
 			let rowmap = {
-				proxy: [ getRow('proxyOwnIp'), getRow('proxyPort'), getRow('cookieFile'), getRow('refreshInterval') ],
+				proxy: [ getRow('proxyOwnIp'), $('#alexa-remote-account-ip-hint'), getRow('proxyPort'), getRow('cookieFile'), getRow('refreshInterval'), getRow('refreshInterval').next() ],
 				cookie: [ getRow('cookie') ],
 				password: [ getRow('email'), getRow('password') ],
 			}
+
+			const updateIpHint = () => {
+				const proxy = getInput('authMethod').val() === 'proxy';
+				$('#alexa-remote-account-ip-hint').toggle(proxy && isLocal(String(getInput('proxyOwnIp').val()).trim()));
+			};
 
 			getInput('authMethod').change(event => {
 				Object.entries(rowmap).forEach(([k,v]) => {
 					k === event.target.value ? v.forEach(r => r.show()) : v.forEach(r => r.hide());
 				});
+				$('#alexa-remote-account-deprecated').toggle(event.target.value !== 'proxy');
+				updateIpHint();
 			});
+			getInput('proxyOwnIp').on('input change', updateIpHint);
+
+			// "This IP" suggestions: the host this editor is opened with, then the server's own addresses
+			const suggestions = new Set();
+			if (!isLocal(window.location.hostname)) suggestions.add(window.location.hostname);
+			const fillSuggestions = () => {
+				$('#alexa-remote-ip-suggestions').empty().append(Array.from(suggestions).map(ip => $('<option>').attr('value', ip)));
+			};
+			fillSuggestions();
+			$.getJSON('alexa-remote-local-ips.json').done(ips => { ips.forEach(ip => suggestions.add(ip)); fillSuggestions(); });
+
+			// a brand new account would default to localhost, which never works from another device
+			const isNew = !RED.nodes.node(node.id);
+			if (isNew && isLocal(node.proxyOwnIp) && suggestions.size) {
+				getInput('proxyOwnIp').val(Array.from(suggestions)[0]);
+			}
+			updateIpHint();
+
+			// current state of the deployed account, with a clickable login link while waiting for the login
+			const showState = state => {
+				if (!state || !state.deployed) return;
+				const text = $('#alexa-remote-account-status-text').empty();
+				if (state.code === 'WAIT_PROXY' && state.loginUrl) {
+					text.append(document.createTextNode('Login required: '))
+						.append($('<a target="_blank" rel="noopener">').attr('href', state.loginUrl).text(state.loginUrl));
+				}
+				else {
+					text.text(state.message || state.code);
+				}
+				if (state.cookieFileIsDefault && state.cookieFile) {
+					text.append($('<div style="opacity: 0.7;">').text(`authentication saved to ${state.cookieFile}`));
+				}
+				$('#alexa-remote-account-status').show();
+			};
+			const pollState = () => $.getJSON('alexa-remote-account-state.json', { account: node.id }).done(showState);
+			pollState();
+			node._alexaStateTimer = setInterval(pollState, 3000);
 		},
 		oneditsave: function() {
-			console.log('saved', this);
+			clearInterval(this._alexaStateTimer);
+		},
+		oneditcancel: function() {
+			clearInterval(this._alexaStateTimer);
+		},
+		oneditdelete: function() {
+			clearInterval(this._alexaStateTimer);
 		}
 	});
 </script>

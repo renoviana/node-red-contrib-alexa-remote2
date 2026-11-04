@@ -1,19 +1,30 @@
 {
-	"name": "node-red-contrib-alexa-remote2",
-	"version": "3.10.4",
+	"name": "@renoviana/node-red-contrib-alexa-remote2",
+	"version": "4.0.0",
 	"author": {
 		"name": "586837r",
 		"email": "586837r@gmail.com"
 	},
-	"description": "node-red nodes for interacting with alexa",
+	"contributors": [
+		{
+			"name": "renoviana",
+			"url": "https://github.com/renoviana"
+		}
+	],
+	"description": "Node-RED nodes for interacting with Alexa (maintained fork with the new Amazon login)",
 	"keywords": [
 		"node-red",
 		"alexa remote",
 		"alexa",
-		"echo"
+		"echo",
+		"home assistant"
 	],
 	"license": "MIT",
+	"engines": {
+		"node": ">=18.0.0"
+	},
 	"node-red": {
+		"version": ">=2.0.0",
 		"nodes": {
 			"alexa-remote-account": "nodes/alexa-remote-account.js",
 			"alexa-remote-init": "nodes/alexa-remote-init.js",
@@ -25,14 +36,35 @@
 			"alexa-remote-list": "nodes/alexa-remote-list.js"
 		}
 	},
+	"scripts": {
+		"test": "node --test"
+	},
+	"files": [
+		"nodes/",
+		"lib/",
+		"CHANGELOG.md",
+		"README.md",
+		"LICENSE",
+		"examples.md",
+		"get_cookie.md"
+	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/586837r/node-red-contrib-alexa-remote2"
+		"url": "https://github.com/renoviana/node-red-contrib-alexa-remote2"
 	},
 	"bugs": {
-		"url": "https://github.com/586837r/node-red-contrib-alexa-remote2/issues"
+		"url": "https://github.com/renoviana/node-red-contrib-alexa-remote2/issues"
+	},
+	"homepage": "https://github.com/renoviana/node-red-contrib-alexa-remote2#readme",
+	"publishConfig": {
+		"access": "public"
 	},
 	"dependencies": {
 		"alexa-remote2": "8.1.1"
+	},
+	"overrides": {
+		"alexa-cookie2": {
+			"cookie": "^0.7.2"
+		}
 	}
 }

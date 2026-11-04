@@ -1,3 +1,16 @@
+- **4.0.0** (maintained fork by renoviana, published as `@renoviana/node-red-contrib-alexa-remote2`)
+  - fixed proxy login with Amazon's new sign-in page (`SSL_ERROR_RX_RECORD_TOO_LONG` after entering the email)
+  - update dependency alexa-remote2 to 8.1.1 (alexa-cookie2 5.0.6)
+  - fixed "port already in use" when refreshing the cookie; refresh reuses the in-memory authentication
+  - authentication is always saved: empty *File Path* now defaults to the Node-RED user dir (`/config` in the Home Assistant add-on)
+  - cookie file is written atomically, kept as `.bak` and restored from it when corrupted
+  - *Refresh* is limited to 1-14 days (longer values made the refresh loop immediately)
+  - added *Login Required* and *Account State Change* events to the *Alexa Event* node
+  - added *Todo/List Change* and *Now Playing Updated* push events
+  - account dialog shows the current state and a clickable login link, and suggests *This IP*
+  - *Cookie* auth method marked as deprecated
+  - added tests (`npm test`), fixed dependency vulnerabilities
+  - **breaking:** requires Node.js 18+ and Node-RED 2+
 - **3.10.4**
   - update dependency alexa-remote2 to 3.3.1
 - **3.10.3**

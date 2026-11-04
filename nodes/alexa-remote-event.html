@@ -10,6 +10,11 @@
 	<div class="form-row">
 		<label for="node-input-event"><i class="fa fa-sort"></i> Command</label>
 		<select id="node-input-event" style="width: 70%">
+			<optgroup label="Account">
+			<option value="account-login-required"		>Login Required				</option>
+			<option value="account-state"				>Account State Change		</option>
+			</optgroup>
+			<optgroup label="Push connection">
 			<option value="ws-disconnect"				>Disconnect					</option>
 			<option value="ws-error"					>Error						</option>
 			<option value="ws-connect"					>Connect					</option>
@@ -25,7 +30,10 @@
 			<option value="ws-equilizer-state-change"	>Equalizer State Change		</option>	
 			<option value="ws-notification-change"		>Notification Change		</option>	
 			<option value="ws-device-activity"			>Device Activity			</option>	
-			<option value="ws-unknown-command"			>Unknown Command			</option>	
+			<option value="ws-todo-change"				>Todo/List Change			</option>
+			<option value="ws-now-playing-updated"		>Now Playing Updated		</option>
+			<option value="ws-unknown-command"			>Unknown Command			</option>
+			</optgroup>
 		</select>
 	</div>
 </script>
@@ -39,22 +47,38 @@
 		}
 	</style>
 
-	<p>Listens to WsMqtt events.
-		Events must be enabled for this account.</p>
+	<p>Listens to account events and to events of the Alexa push connection.</p>
+	<ul>
+		<li><strong>Account</strong> events always work:
+			<ul>
+				<li><em>Login Required</em> fires when the account needs a new browser login (for example when the
+					saved authentication expired). <code>msg.payload.loginUrl</code> is the link to open. Connect it to
+					a notification (Home Assistant, Telegram, e-mail, ...) so you never miss it.</li>
+				<li><em>Account State Change</em> fires on every state change (<code>READY</code>, <code>ERROR</code>,
+					<code>WAIT_PROXY</code>, <code>REFRESH</code>, ...).</li>
+			</ul>
+		</li>
+		<li><strong>Push connection</strong> events need <em>Events</em> to be <em>on</em> in the account.</li>
+	</ul>
 	<hr>
 	<h3><strong>Outputs</strong></h3>
 	<ul>
+		<li><strong>topic</strong>
+			<ul>
+				<li>the event name (account events)</li>
+			</ul>
+		</li>
 		<li><strong>payload</strong>
 			<ul>
-				<li>the event payload</li>
+				<li>the event payload; for account events <code>{ code, message, time, loginUrl }</code></li>
 			</ul>
 		</li>
 	</ul>
 	<hr>
 	<h3><strong>References</strong></h3>
 	<ul>
-		<li><a href="https://npmjs.com/package/node-red-contrib-alexa-remote2">npm</a> - the nodes npm repository</li>
-		<li><a href="https://github.com/586837r/node-red-contrib-alexa-remote2">GitHub</a> - the nodes GitHub repository
+		<li><a href="https://npmjs.com/package/@renoviana/node-red-contrib-alexa-remote2">npm</a> - the nodes npm repository</li>
+		<li><a href="https://github.com/renoviana/node-red-contrib-alexa-remote2">GitHub</a> - the nodes GitHub repository
 		</li>
 	</ul>
 </script>
@@ -79,7 +103,8 @@
 					return str;
 			}
 			
-			return this.name || `On ${keyToLabel(this.event.slice(3))}`;
+			const event = String(this.event || '');
+			return this.name || `On ${keyToLabel(event.replace(/^(ws|account)-/, ''))}`;
 		},
 		labelStyle: function () {
 			return this.name ? "node_label_italic" : "";
