@@ -468,8 +468,9 @@ module.exports = function (RED) {
 				this.setState('WAIT_PROXY', text);
 			};
 
-			if(initType === 'proxy') {
-				await tools.portAvailable(config.proxyPort).catch(error => {
+			// the proxy is only started when there is no saved cookie to reuse
+			if(initType === 'proxy' && !config.cookie) {
+				await tools.portAvailable(config.proxyPort, 10, 300).catch(error => {
 					if(error.code === 'EADDRINUSE') error.message = `port ${config.proxyPort} already in use`;
 					this.setState('ERROR', error.message);
 					throw error;
@@ -513,8 +514,13 @@ module.exports = function (RED) {
 			if(this.state.code !== 'READY') throw new Error('account must be initialised before refreshing');
 			this.setState('REFRESH');
 
+			// reuse the cookie we already have in memory (falls back to the cookie file),
+			// so a refresh does not require a new browser login
+			const current = this.alexa && this.alexa.cookieData;
+			const input = tools.isObject(current) && current.loginCookie ? tools.clone(current) : undefined;
+
 			//return this.alexa.refreshExt().then(value => {
-			return this.initAlexa(undefined).then(value => {
+			return this.initAlexa(input).then(value => {
 				this.setState('READY');
 				this.renewTimeout();
 				return value;
